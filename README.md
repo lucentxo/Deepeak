@@ -1,4 +1,6 @@
-# <p align="center"><img src="Resources/deepseek_logo.png" width="36" height="36" alt="DeepSeek Logo" style="vertical-align: middle;" /> Deepeak</p>
+<h1 align="center">
+  <img src="Resources/deepseek_logo.png" width="38" height="38" alt="DeepSeek Logo" style="vertical-align: -8px; margin-right: 6px;" /> Deepeak
+</h1>
 
 <p align="center">
   <b>A polished, ultra-lightweight macOS menu bar tool for DeepSeek.</b><br/>
