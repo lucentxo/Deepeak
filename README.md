@@ -45,8 +45,8 @@
 ## 🚀 Installation
 
 ### Option 1: Direct Download (Recommended)
-1. Download the latest **[Deepeak.zip](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.zip)** from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
-2. Unzip and drag `Deepeak.app` into your **Applications** folder.
+1. Download the latest **[Deepeak.dmg](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.dmg)** from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
+2. Open `Deepeak.dmg` and drag **Deepeak** into your **Applications** folder.
 3. Launch `Deepeak` — the whale logo will appear directly in your macOS menu bar!
 
 ---
@@ -57,7 +57,7 @@ If you prefer to compile it yourself:
 ```bash
 git clone https://github.com/lucentxo/Deepeak.git
 cd Deepeak
-./build.sh
+./build.sh --dmg
 open Deepeak.app
 ```
 
@@ -69,8 +69,9 @@ open Deepeak.app
 ```
 DeepSeekStatus/
 ├── Package.swift               // Swift Package Manager configuration
-├── build.sh                    // Automated build & .app bundling script
+├── build.sh                    // Automated build, .app bundling & .dmg packaging script
 ├── Resources/
+│   ├── AppIcon.icns            // macOS application icon bundle
 │   ├── Info.plist              // LSUIElement=true configuration
 │   └── deepseek_logo.png       // Official DeepSeek whale asset
 └── Sources/
