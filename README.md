@@ -21,11 +21,6 @@
   - Automatically turns **Electric Blue** during **Off-Peak (50% discount)** hours.
   - Automatically turns **Graphite / Black** during **Peak** hours.
 
-- **🪟 BetterDisplay-Inspired Liquid Glass UI**:
-  - Unified single-sheet frosted translucent glass card (`NSVisualEffectView`).
-  - Subtle hairline borders (`0.8pt`) matching macOS Tahoe / Golden Gate design standards.
-  - Crisp Apple SF Pro typography with tabular figures (`.monospacedDigit()`) for stable, professional alignment.
-
 - **⏰ System Timezone Sync & Countdown**:
   - Tracks DeepSeek's Monday–Friday UTC windows (`01:00–04:00 UTC` and `06:00–10:00 UTC`).
   - Automatically translates intervals into your Mac's current local system timezone.
