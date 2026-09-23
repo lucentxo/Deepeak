@@ -79,7 +79,7 @@ DeepSeekStatus/
     │   ├── ScheduleManager.swift // UTC peak schedule, timezone converter & timer
     │   └── PricingManager.swift  // Token pricing rates, cache & 12h refresh timer
     ├── Views/
-    │   ├── PopoverContentView.swift // Unified liquid glass container
+    │   ├── PopoverContentView.swift // Unified container
     │   ├── StatusHeaderView.swift   // Whale badge, status pill & discount indicator
     │   ├── ScheduleCardView.swift   // Local timezone peak schedule table
     │   └── PricingCardView.swift    // Tabular token pricing rates
