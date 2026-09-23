@@ -4,7 +4,7 @@
 
 <p align="center">
   <b>A polished, ultra-lightweight macOS menu bar tool for DeepSeek.</b><br/>
-  Tracks live API peak & off-peak discount hours, converts schedules to your local system timezone, and provides real-time token pricing in a native Liquid Glass interface.
+  Tracks live API peak & off-peak discount hours, converts schedules to your local system timezone, and provides real-time token pricing.
 </p>
 
 <p align="center">
