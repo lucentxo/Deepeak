@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="Resources/deepseek_logo.png" width="38" height="38" alt="DeepSeek Logo" style="vertical-align: -8px; margin-right: 6px;" /> Deepeak
+  <img align="center" width="40" height="40" src="Resources/deepseek_logo.png" alt="DeepSeek Logo" /> Deepeak
 </h1>
 
 <p align="center">
