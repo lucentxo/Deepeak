@@ -24,7 +24,7 @@
 - **⏰ System Timezone Sync & Countdown**:
   - Tracks DeepSeek's Monday–Friday UTC windows (`01:00–04:00 UTC` and `06:00–10:00 UTC`).
   - Automatically translates intervals into your Mac's current local system timezone.
-  - Dynamically updates on system timezone or clock adjustments (`NSSystemTimeZoneDidChange`).
+  - Dynamically updates on system timezone or clock adjustments.
   - Real-time countdown displaying remaining time until the next peak/off-peak transition.
 
 - **💰 Token Pricing Breakdown (USD / 1M Tokens)**:
