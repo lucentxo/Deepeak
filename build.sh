@@ -38,13 +38,12 @@ if [[ "$*" == *"--dmg"* ]]; then
     if command -v create-dmg >/dev/null 2>&1; then
         create-dmg \
             --volname "${APP_NAME}" \
-            --volicon "${PROJECT_DIR}/Resources/AppIcon.icns" \
             --window-pos 200 120 \
-            --window-size 560 360 \
+            --window-size 540 360 \
             --icon-size 110 \
             --icon "${BUNDLE_NAME}" 140 180 \
             --hide-extension "${BUNDLE_NAME}" \
-            --app-drop-link 420 180 \
+            --app-drop-link 400 180 \
             --format UDZO \
             --overwrite \
             "${PROJECT_DIR}/${APP_NAME}.dmg" \
