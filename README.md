@@ -40,26 +40,25 @@
 
 ---
 
-## 🚀 Building & Running
+## 🚀 Installation
 
-### Requirements
-- macOS 13.0 Ventura or later
-- Swift 5.9+ / Xcode Command Line Tools
+### Option 1: Direct Download (Recommended)
+1. Download the latest **[Deepeak.zip](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.zip)** from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
+2. Unzip and drag `Deepeak.app` into your **Applications** folder.
+3. Launch `Deepeak` — the whale logo will appear directly in your macOS menu bar!
 
-### Quick Build
-Clone the repository and run the build script:
+---
+
+### Option 2: Build from Source
+If you prefer to compile it yourself:
 
 ```bash
-git clone https://github.com/<your-username>/deepeak.git
-cd deepeak
+git clone https://github.com/lucentxo/Deepeak.git
+cd Deepeak
 ./build.sh
-```
-
-This compiles a release binary with optimizations and packages `Deepeak.app` in the project root:
-
-```bash
 open Deepeak.app
 ```
+
 
 ---
 
