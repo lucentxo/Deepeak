@@ -35,7 +35,7 @@
 - **⚡ Featherweight & Resource Conscious**:
   - Entire app bundle is only **584 KB** on disk.
   - **Lazy Popover Allocation**: View hierarchy and window backing stores are torn down immediately on dismiss.
-  - Zero-lag, instant presentation without bouncy drop animations.
+  - Zero-lag, instant presentation.
   - Pure menu bar utility with no dock icon.
 
 ---
