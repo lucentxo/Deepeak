@@ -16,8 +16,8 @@
 
 ## ✨ Features
 
-- **🐋 Dynamic Menu Bar Whale Icon**:
-  - Displays the official **DeepSeek Whale logo** directly in the macOS menu bar at 22pt (matching native system icons).
+- **🐋 Dynamic Menu Bar Icon**:
+  - Displays the official **DeepSeek Whale logo** in the macOS menu bar.
   - Automatically turns **Electric Blue** during **Off-Peak (50% discount)** hours.
   - Automatically turns **Graphite / Black** during **Peak** hours.
 
