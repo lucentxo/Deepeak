@@ -45,7 +45,7 @@
 ## 🚀 Installation
 
 ### Option 1: Direct Download (Recommended)
-1. Download the latest **[Deepeak.dmg](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.dmg)** from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
+1. Download the latest **[Deepeak.dmg](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.dmg)** (or **[Deepeak.zip](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.zip)**) from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
 2. Open `Deepeak.dmg` and drag **Deepeak** into your **Applications** folder.
 3. Launch `Deepeak` — the whale logo will appear directly in your macOS menu bar!
 

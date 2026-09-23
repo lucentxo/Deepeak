@@ -54,4 +54,6 @@ if [[ "$*" == *"--dmg"* ]]; then
     fi
     rm -rf "${STAGE_DIR}"
     echo "✅ DMG created at ${PROJECT_DIR}/${APP_NAME}.dmg"
+    zip -9 -j "${PROJECT_DIR}/${APP_NAME}.zip" "${PROJECT_DIR}/${APP_NAME}.dmg"
+    echo "✅ ZIP created at ${PROJECT_DIR}/${APP_NAME}.zip"
 fi
