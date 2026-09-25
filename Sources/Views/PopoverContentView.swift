@@ -3,6 +3,7 @@ import SwiftUI
 struct PopoverContentView: View {
     @ObservedObject var schedule: ScheduleManager
     @ObservedObject var pricing: PricingManager
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -10,19 +11,19 @@ struct PopoverContentView: View {
             StatusHeaderView(schedule: schedule)
             
             Divider()
-                .background(Color.white.opacity(0.12))
+                .background(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
             
             // Section 2: Peak Schedule
             ScheduleCardView(schedule: schedule)
             
             Divider()
-                .background(Color.white.opacity(0.12))
+                .background(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
             
             // Section 3: Pricing Table
             PricingCardView(pricing: pricing, schedule: schedule)
             
             Divider()
-                .background(Color.white.opacity(0.12))
+                .background(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
             
             // Section 4: Action Footer
             HStack {
@@ -37,16 +38,16 @@ struct PopoverContentView: View {
                         Text("DeepSeek Platform")
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    .foregroundColor(Color.white.opacity(0.85))
+                    .foregroundColor(Color.primary.opacity(colorScheme == .dark ? 0.85 : 0.80))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(Color.white.opacity(0.08))
+                            .fill(Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.8)
+                            .strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.10), lineWidth: 0.8)
                     )
                 }
                 .buttonStyle(.plain)
@@ -62,16 +63,16 @@ struct PopoverContentView: View {
                         Text("Quit")
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    .foregroundColor(Color.white.opacity(0.70))
+                    .foregroundColor(Color.primary.opacity(colorScheme == .dark ? 0.70 : 0.65))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(Color.white.opacity(0.06))
+                            .fill(Color.primary.opacity(colorScheme == .dark ? 0.06 : 0.04))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.8)
+                            .strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.10), lineWidth: 0.8)
                     )
                 }
                 .buttonStyle(.plain)
@@ -80,22 +81,35 @@ struct PopoverContentView: View {
         }
         .padding(16)
         .frame(width: 380)
-        // Single unified BetterDisplay liquid glass container
+        // Unified liquid glass container with high-contrast backing in light mode
         .background(
             ZStack {
                 VisualEffectBlur(material: .popover, blendingMode: .behindWindow)
                 
-                // Subtle liquid glass top-to-bottom sheen
-                LinearGradient(
-                    stops: [
-                        .init(color: Color.white.opacity(0.10), location: 0.0),
-                        .init(color: Color.white.opacity(0.02), location: 0.35),
-                        .init(color: Color.clear, location: 0.70),
-                        .init(color: Color.black.opacity(0.06), location: 1.0)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                if colorScheme == .dark {
+                    // Subtle dark liquid glass top-to-bottom sheen
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0.10), location: 0.0),
+                            .init(color: Color.white.opacity(0.02), location: 0.35),
+                            .init(color: Color.clear, location: 0.70),
+                            .init(color: Color.black.opacity(0.06), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                } else {
+                    // Light mode: add a crisp translucent white backing to prevent muddy dark wallpaper bleedthrough
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0.55), location: 0.0),
+                            .init(color: Color.white.opacity(0.40), location: 0.50),
+                            .init(color: Color.white.opacity(0.35), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
             }
         )
     }

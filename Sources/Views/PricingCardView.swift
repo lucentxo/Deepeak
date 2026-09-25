@@ -3,13 +3,14 @@ import SwiftUI
 struct PricingCardView: View {
     @ObservedObject var pricing: PricingManager
     @ObservedObject var schedule: ScheduleManager
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("PRICING (USD / 1M TOKENS)")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.65))
+                    .foregroundColor(Color.secondary)
                     .tracking(0.5)
                 
                 Spacer()
@@ -27,11 +28,11 @@ struct PricingCardView: View {
                             .font(.system(size: 10, weight: .medium))
                             .monospacedDigit()
                     }
-                    .foregroundColor(Color.white.opacity(0.85))
+                    .foregroundColor(Color.primary.opacity(colorScheme == .dark ? 0.85 : 0.80))
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
-                    .background(Capsule().fill(Color.white.opacity(0.10)))
-                    .overlay(Capsule().strokeBorder(Color.white.opacity(0.14), lineWidth: 0.8))
+                    .background(Capsule().fill(Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.06)))
+                    .overlay(Capsule().strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.10), lineWidth: 0.8))
                 }
                 .buttonStyle(.plain)
                 .help("Refreshes every 12h. Click to refresh now.")
@@ -41,22 +42,22 @@ struct PricingCardView: View {
             HStack(spacing: 6) {
                 Text("Model")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.50))
+                    .foregroundColor(Color.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text("Cache Hit")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.50))
+                    .foregroundColor(Color.secondary)
                     .frame(width: 58, alignment: .trailing)
                 
                 Text("Input Miss")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.50))
+                    .foregroundColor(Color.secondary)
                     .frame(width: 64, alignment: .trailing)
                 
                 Text("Output")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.50))
+                    .foregroundColor(Color.secondary)
                     .frame(width: 58, alignment: .trailing)
             }
             .padding(.horizontal, 4)
@@ -68,7 +69,7 @@ struct PricingCardView: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(model.name)
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.primary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.85)
                         }
@@ -80,14 +81,18 @@ struct PricingCardView: View {
                             Text(formatUSD(currentPrice))
                                 .font(.system(size: 12, weight: .semibold))
                                 .monospacedDigit()
-                                .foregroundColor(schedule.isOffPeak ? Color(red: 0.40, green: 0.75, blue: 1.0) : .white)
+                                .foregroundColor(
+                                    schedule.isOffPeak
+                                    ? (colorScheme == .dark ? Color(red: 0.40, green: 0.75, blue: 1.0) : Color(red: 0.05, green: 0.40, blue: 0.95))
+                                    : Color.primary
+                                )
                             
                             if schedule.isOffPeak {
                                 Text(formatUSD(model.peakInputHit))
                                     .font(.system(size: 9, weight: .regular))
                                     .monospacedDigit()
-                                    .strikethrough(color: Color.white.opacity(0.4))
-                                    .foregroundColor(Color.white.opacity(0.40))
+                                    .strikethrough(color: Color.secondary.opacity(0.5))
+                                    .foregroundColor(Color.secondary.opacity(colorScheme == .dark ? 0.40 : 0.60))
                             }
                         }
                         .frame(width: 58, alignment: .trailing)
@@ -98,14 +103,18 @@ struct PricingCardView: View {
                             Text(formatUSD(currentPrice))
                                 .font(.system(size: 12, weight: .semibold))
                                 .monospacedDigit()
-                                .foregroundColor(schedule.isOffPeak ? Color(red: 0.40, green: 0.75, blue: 1.0) : .white)
+                                .foregroundColor(
+                                    schedule.isOffPeak
+                                    ? (colorScheme == .dark ? Color(red: 0.40, green: 0.75, blue: 1.0) : Color(red: 0.05, green: 0.40, blue: 0.95))
+                                    : Color.primary
+                                )
                             
                             if schedule.isOffPeak {
                                 Text(formatUSD(model.peakInputMiss))
                                     .font(.system(size: 9, weight: .regular))
                                     .monospacedDigit()
-                                    .strikethrough(color: Color.white.opacity(0.4))
-                                    .foregroundColor(Color.white.opacity(0.40))
+                                    .strikethrough(color: Color.secondary.opacity(0.5))
+                                    .foregroundColor(Color.secondary.opacity(colorScheme == .dark ? 0.40 : 0.60))
                             }
                         }
                         .frame(width: 64, alignment: .trailing)
@@ -116,14 +125,18 @@ struct PricingCardView: View {
                             Text(formatUSD(currentPrice))
                                 .font(.system(size: 12, weight: .semibold))
                                 .monospacedDigit()
-                                .foregroundColor(schedule.isOffPeak ? Color(red: 0.40, green: 0.75, blue: 1.0) : .white)
+                                .foregroundColor(
+                                    schedule.isOffPeak
+                                    ? (colorScheme == .dark ? Color(red: 0.40, green: 0.75, blue: 1.0) : Color(red: 0.05, green: 0.40, blue: 0.95))
+                                    : Color.primary
+                                )
                             
                             if schedule.isOffPeak {
                                 Text(formatUSD(model.peakOutput))
                                     .font(.system(size: 9, weight: .regular))
                                     .monospacedDigit()
-                                    .strikethrough(color: Color.white.opacity(0.4))
-                                    .foregroundColor(Color.white.opacity(0.40))
+                                    .strikethrough(color: Color.secondary.opacity(0.5))
+                                    .foregroundColor(Color.secondary.opacity(colorScheme == .dark ? 0.40 : 0.60))
                             }
                         }
                         .frame(width: 58, alignment: .trailing)
@@ -132,11 +145,11 @@ struct PricingCardView: View {
                     .padding(.vertical, 6)
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(Color.white.opacity(0.04))
+                            .fill(Color.primary.opacity(colorScheme == .dark ? 0.04 : 0.05))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.8)
+                            .strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.10), lineWidth: 0.8)
                     )
                 }
             }
@@ -144,13 +157,13 @@ struct PricingCardView: View {
             HStack {
                 Text("Rates automatically update for 50% off-peak window.")
                     .font(.system(size: 10))
-                    .foregroundColor(Color.white.opacity(0.60))
+                    .foregroundColor(Color.secondary)
                 
                 Spacer()
                 
                 Text("Syncs every 12h")
                     .font(.system(size: 9.5, weight: .medium))
-                    .foregroundColor(Color.white.opacity(0.50))
+                    .foregroundColor(Color.secondary.opacity(0.85))
             }
             .padding(.top, 1)
         }
