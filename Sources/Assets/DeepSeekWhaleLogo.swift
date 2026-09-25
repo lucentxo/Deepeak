@@ -6,8 +6,7 @@ struct DeepSeekLogoLoader {
     private static var cachedBaseImage: NSImage? = {
         let possiblePaths: [String?] = [
             Bundle.main.path(forResource: "deepseek_logo", ofType: "png"),
-            Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/deepseek_logo.png").path,
-            "/Users/lucent/Documents/Projects/DeepSeekStatus/Resources/deepseek_logo.png"
+            Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/deepseek_logo.png").path
         ]
         
         for path in possiblePaths.compactMap({ $0 }) {
