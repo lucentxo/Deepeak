@@ -29,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var popover: NSPopover?
     private let scheduleManager = ScheduleManager()
     private let pricingManager = PricingManager()
+    private let balanceManager = BalanceManager()
     private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -36,6 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         for window in NSApplication.shared.windows {
             window.close()
         }
+        
+        // Enable standard keyboard shortcuts (Cmd+V, Cmd+C, Cmd+A, Cmd+Z) in popover text fields
+        setupMainMenuShortcuts()
         
         // Configure NSStatusItem in macOS menu bar
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -53,6 +57,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 self?.updateStatusItemIcon()
             }
             .store(in: &cancellables)
+    }
+    
+    private func setupMainMenuShortcuts() {
+        let mainMenu = NSMenu()
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Edit")
+        
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        
+        mainMenu.addItem(editMenuItem)
+        mainMenu.setSubmenu(editMenu, for: editMenuItem)
+        NSApplication.shared.mainMenu = mainMenu
     }
     
     private func updateStatusItemIcon() {
@@ -76,17 +98,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         
         // Update data right before presenting
         scheduleManager.updateSchedule()
+        if balanceManager.hasApiKey {
+            balanceManager.fetchBalance()
+        }
         
         // Lazy build popover so SwiftUI view hierarchy and window surfaces are created on demand
         let pop = NSPopover()
-        pop.contentSize = NSSize(width: 380, height: 370)
+        let popoverHeight: CGFloat = balanceManager.hasApiKey ? 495 : 445
+        pop.contentSize = NSSize(width: 380, height: popoverHeight)
         pop.behavior = .transient
         pop.animates = false
         pop.delegate = self
         pop.contentViewController = NSHostingController(
             rootView: PopoverContentView(
                 schedule: scheduleManager,
-                pricing: pricingManager
+                pricing: pricingManager,
+                balance: balanceManager
             )
         )
         

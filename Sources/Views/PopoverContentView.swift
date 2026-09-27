@@ -3,6 +3,7 @@ import SwiftUI
 struct PopoverContentView: View {
     @ObservedObject var schedule: ScheduleManager
     @ObservedObject var pricing: PricingManager
+    @ObservedObject var balance: BalanceManager
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -13,7 +14,13 @@ struct PopoverContentView: View {
             Divider()
                 .background(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
             
-            // Section 2: Peak Schedule
+            // Section 2: Account Balance & Token Capacity
+            BalanceCardView(balanceManager: balance, pricingManager: pricing, scheduleManager: schedule)
+            
+            Divider()
+                .background(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
+            
+            // Section 3: Peak Schedule
             ScheduleCardView(schedule: schedule)
             
             Divider()

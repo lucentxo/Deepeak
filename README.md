@@ -29,13 +29,23 @@
   - Dynamically updates on system timezone or clock adjustments.
   - Real-time countdown displaying remaining time until the next peak/off-peak transition.
 
+- **💳 Live Account Balance & Budget**:
+  - Connect your DeepSeek API key for real-time account balance tracking directly from DeepSeek's official `/user/balance` API.
+  - View total balance, topped-up credits, and promotional grants.
+  - Smart status indicators: `Active`, `Low Balance`, or `Zero`.
+  - Keys are stored locally on your Mac with full privacy.
+
+- **⚡ Estimated Token Capacity**:
+  - Automatically calculates remaining token capacity based on your balance for **DeepSeek V4.1 Flash** and **DeepSeek V4 Pro**.
+  - Dynamically recalculates capacity in real time when 50% off-peak discounts kick in.
+
 - **💰 Token Pricing Breakdown (USD / 1M Tokens)**:
   - Tracks active models: **DeepSeek V4.1 Flash** and **DeepSeek V4 Pro**.
   - Shows **Cache Hit**, **Input Miss**, and **Output** rates with automatic 50% discount calculation and strikethrough peak rates.
   - Background auto-refresh every **12 hours** with an instant manual refresh trigger.
 
 - **⚡ Featherweight & Resource Conscious**:
-  - Entire app bundle is only **584 KB** on disk.
+  - Entire app bundle is only **~600 KB** on disk.
   - **Lazy Popover Allocation**: View hierarchy and window backing stores are torn down immediately on dismiss.
   - Zero-lag, instant presentation.
   - Pure menu bar utility with no dock icon.
@@ -78,10 +88,13 @@ DeepSeekStatus/
     ├── DeepSeekStatusApp.swift // App entry point, menu item & popover lifecycle
     ├── Models/
     │   ├── ScheduleManager.swift // UTC peak schedule, timezone converter & timer
-    │   └── PricingManager.swift  // Token pricing rates, cache & 12h refresh timer
+    │   ├── PricingManager.swift  // Token pricing rates, cache & 12h refresh timer
+    │   ├── BalanceManager.swift  // Live account balance, budget & token math
+    │   └── KeychainHelper.swift  // Safe local API key storage
     ├── Views/
     │   ├── PopoverContentView.swift // Unified container
     │   ├── StatusHeaderView.swift   // Whale badge, status pill & discount indicator
+    │   ├── BalanceCardView.swift    // Live balance, token capacity & key settings
     │   ├── ScheduleCardView.swift   // Local timezone peak schedule table
     │   └── PricingCardView.swift    // Tabular token pricing rates
     └── Assets/
