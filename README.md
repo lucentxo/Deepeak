@@ -39,7 +39,7 @@
   - Perfect for scheduling automated batch jobs, fine-tuning scripts, and high-throughput inference at minimum cost.
 
 - **🚀 DeepSeek-V4.1-Flash-1017 & V4 Pro Support**:
-  - Full support for **DeepSeek-V4.1-Flash-1017** (`deepseek-flash`, aliases `deepseek-v4.1-flash-1017`, `deepseek-v4-flash`), the high-speed flagship multimodal reasoning model (1017) with 1M token context.
+  - Full support for **DeepSeek-V4.1-Flash-1017**.
   - Full support for **DeepSeek V4 Pro** (`deepseek-pro`, alias `deepseek-v4-pro`), the premier professional reasoning and code generation model.
 
 - **💰 Real-Time Token Pricing Breakdown (USD / 1M Tokens)**:
@@ -67,41 +67,6 @@
   - **Lazy Popover Allocation**: View hierarchy and window backing stores are torn down immediately on dismiss.
   - Zero idle CPU wakes; negligible memory footprint.
   - Pure menu bar utility (`LSUIElement=true`) with no dock clutter.
-
----
-
-## 🏗 Architecture & Concurrency
-
-Deepeak is designed with modern Swift best practices and Swift 6 concurrency readiness:
-
-```
-DeepSeekStatus/
-├── Package.swift               // Swift Package Manager definition (executable + testTarget)
-├── build.sh                    // Automated build, test, .app bundling & .dmg packaging script
-├── Resources/
-│   ├── AppIcon.icns            // High-resolution macOS application icon bundle
-│   ├── Info.plist              // LSUIElement=true configuration & app metadata
-│   ├── deepseek_logo.png       // DeepSeek whale brand mark
-│   └── logo_aligned.png        // README banner icon
-├── Sources/
-│   ├── DeepSeekStatusApp.swift // App entry point, NSStatusItem menu & popover lifecycle
-│   ├── Models/
-│   │   ├── ScheduleManager.swift // Peak/off-peak UTC calculation, UNUserNotificationCenter alerts & timers
-│   │   ├── PricingManager.swift  // DeepSeek model pricing tiers, 50% discount math & 12h cache
-│   │   ├── BalanceManager.swift  // Live API balance querying, Keychain integration & token math
-│   │   └── KeychainHelper.swift  // Thread-safe macOS Keychain wrapper for API keys
-│   ├── Views/
-│   │   ├── PopoverContentView.swift // Unified SwiftUI container
-│   │   ├── StatusHeaderView.swift   // Whale badge, peak status pill & discount indicator
-│   │   ├── BalanceCardView.swift    // Live balance, token capacity & key settings
-│   │   ├── ScheduleCardView.swift   // Local timezone peak schedule table & countdown
-│   │   └── PricingCardView.swift    // Tabular token pricing rates with off-peak discounts
-│   └── Assets/
-│       └── DeepSeekWhaleLogo.swift  // Official logo loader & dynamic tint generator
-└── Tests/
-    └── DeepSeekStatusTests/
-        └── DeepSeekStatusTests.swift // Comprehensive XCTest unit test suite
-```
 
 ### Architectural Highlights
 - **MainActor Isolation**: UI-bound state and `@Published` properties across `ScheduleManager`, `PricingManager`, and `BalanceManager` are `@MainActor`-isolated to ensure thread safety.
