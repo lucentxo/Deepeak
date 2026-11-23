@@ -46,6 +46,7 @@
   - Full rates breakdown for **Cache Hit**, **Input Miss**, and **Output** tokens.
   - Real-time 50% off-peak rate calculation with strikethrough comparison against standard peak pricing.
   - Background auto-refresh every **12 hours** with an instant manual refresh trigger.
+  
 
   | Model | Parameter | Context | Peak Input (Miss / Hit) | Peak Output | Off-Peak (50% Off) Input | Off-Peak Output |
   | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
