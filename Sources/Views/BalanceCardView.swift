@@ -143,8 +143,8 @@ struct BalanceCardView: View {
 
     private var tokenCapacityPill: some View {
         let isOffPeak = scheduleManager.isOffPeak
-        let flashModel = pricingManager.models.first(where: { $0.id == "deepseek-v4-flash" })
-        let proModel = pricingManager.models.first(where: { $0.id == "deepseek-v4-pro" })
+        let flashModel = pricingManager.model(for: "deepseek-flash") ?? pricingManager.models.first(where: { $0.matches("deepseek-v4-flash") })
+        let proModel = pricingManager.model(for: "deepseek-v4-pro") ?? pricingManager.models.first(where: { $0.matches("deepseek-v4-pro") })
 
         return HStack(spacing: 8) {
             Image(systemName: "bolt.fill")

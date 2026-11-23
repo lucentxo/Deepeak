@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import UserNotifications
 
 /// Manages DeepSeek peak/off-peak windows synced to the system's timezone.
 ///
@@ -7,29 +8,55 @@ import Combine
 /// - Window 1: 01:00 - 04:00 UTC
 /// - Window 2: 06:00 - 10:00 UTC
 /// All other times (including all weekends) are 100% Off-Peak (50% discount).
-class ScheduleManager: ObservableObject {
-    @Published var isOffPeak: Bool = true
-    @Published var currentStatusText: String = "Off-Peak Hours"
-    @Published var nextTransitionText: String = ""
-    @Published var currentTimeZoneIdentifier: String = TimeZone.current.identifier
-    @Published var currentTimeZoneAbbreviation: String = TimeZone.current.abbreviation() ?? "Local"
-    @Published var formattedWindows: [LocalPeakWindow] = []
+public class ScheduleManager: ObservableObject {
+    @Published public var isOffPeak: Bool = true
+    @Published public var currentStatusText: String = "Off-Peak Hours"
+    @Published public var nextTransitionText: String = ""
+    @Published public var currentTimeZoneIdentifier: String = TimeZone.current.identifier
+    @Published public var currentTimeZoneAbbreviation: String = TimeZone.current.abbreviation() ?? "Local"
+    @Published public var formattedWindows: [LocalPeakWindow] = []
     
-    // For manual / simulated testing in debug
-    @Published var simulatedDate: Date? = nil
+    // Opt-in notification preference
+    @Published public var notificationsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(notificationsEnabled, forKey: notificationsKey)
+            if notificationsEnabled {
+                requestNotificationAuthorization()
+            }
+        }
+    }
     
+    // For manual / simulated testing in debug & tests
+    @Published public var simulatedDate: Date? = nil
+    
+    // NotificationCenter identifiers for external listeners and unit tests
+    public static let transitionNotification = Notification.Name("DeepSeekScheduleTransitionNotification")
+    public static let transitionKeyIsOffPeak = "isOffPeak"
+    public static let transitionKeyStatusText = "statusText"
+    public static let transitionKeyTimestamp = "timestamp"
+    
+    private let notificationsKey = "deepseek_schedule_notifications_enabled"
+    private var lastKnownOffPeakState: Bool? = nil
     private var timer: AnyCancellable?
     private var tzObserver: Any?
     
-    struct LocalPeakWindow: Identifiable {
-        let id = UUID()
-        let title: String
-        let utcRange: String
-        let localRange: String
-        let isCurrentlyActive: Bool
+    public struct LocalPeakWindow: Identifiable, Equatable {
+        public let id = UUID()
+        public let title: String
+        public let utcRange: String
+        public let localRange: String
+        public let isCurrentlyActive: Bool
+        
+        public static func == (lhs: LocalPeakWindow, rhs: LocalPeakWindow) -> Bool {
+            lhs.title == rhs.title &&
+            lhs.utcRange == rhs.utcRange &&
+            lhs.localRange == rhs.localRange &&
+            lhs.isCurrentlyActive == rhs.isCurrentlyActive
+        }
     }
     
-    init() {
+    public init() {
+        self.notificationsEnabled = UserDefaults.standard.bool(forKey: notificationsKey)
         updateSchedule()
         setupTimers()
     }
@@ -58,7 +85,39 @@ class ScheduleManager: ObservableObject {
         }
     }
     
-    func updateSchedule() {
+    // MARK: - Schedule Computation
+    
+    public static func isPeakTime(date: Date) -> Bool {
+        var utcCalendar = Calendar(identifier: .gregorian)
+        guard let utcTimeZone = TimeZone(secondsFromGMT: 0) else { return false }
+        utcCalendar.timeZone = utcTimeZone
+        
+        let weekday = utcCalendar.component(.weekday, from: date)
+        let isWeekend = (weekday == 1 || weekday == 7) // Sunday is 1, Saturday is 7
+        if isWeekend { return false }
+        
+        let hour = utcCalendar.component(.hour, from: date)
+        let minute = utcCalendar.component(.minute, from: date)
+        let currentMinutesUTC = hour * 60 + minute
+        
+        // Peak intervals in minutes UTC:
+        // Window 1: 01:00 - 04:00 (60 ... 240)
+        // Window 2: 06:00 - 10:00 (360 ... 600)
+        let inWindow1 = currentMinutesUTC >= 60 && currentMinutesUTC < 240
+        let inWindow2 = currentMinutesUTC >= 360 && currentMinutesUTC < 600
+        
+        return inWindow1 || inWindow2
+    }
+    
+    public static func isOffPeakTime(date: Date) -> Bool {
+        return !isPeakTime(date: date)
+    }
+    
+    public func isOffPeak(at date: Date) -> Bool {
+        return Self.isOffPeakTime(date: date)
+    }
+    
+    public func updateSchedule() {
         let now = simulatedDate ?? Date()
         var utcCalendar = Calendar(identifier: .gregorian)
         guard let utcTimeZone = TimeZone(secondsFromGMT: 0) else { return }
@@ -68,30 +127,89 @@ class ScheduleManager: ObservableObject {
         self.currentTimeZoneIdentifier = localTimeZone.identifier
         self.currentTimeZoneAbbreviation = localTimeZone.abbreviation(for: now) ?? "Local"
         
-        // Check day of week in UTC: Sunday is 1, Saturday is 7, Mon-Fri is 2...6
-        let weekday = utcCalendar.component(.weekday, from: now)
-        let isWeekend = (weekday == 1 || weekday == 7)
+        let isPeakNow = Self.isPeakTime(date: now)
+        let newIsOffPeak = !isPeakNow
         
-        let hour = utcCalendar.component(.hour, from: now)
-        let minute = utcCalendar.component(.minute, from: now)
-        let currentMinutesUTC = hour * 60 + minute
+        // Detect transition (skip alerting on the initial evaluation when previous state is unknown)
+        if let previous = lastKnownOffPeakState, previous != newIsOffPeak {
+            notifyTransition(toOffPeak: newIsOffPeak, at: now)
+        }
+        lastKnownOffPeakState = newIsOffPeak
         
-        // Peak intervals in minutes UTC:
-        // Window 1: 01:00 - 04:00 (60 ... 240)
-        // Window 2: 06:00 - 10:00 (360 ... 600)
-        let inWindow1 = currentMinutesUTC >= 60 && currentMinutesUTC < 240
-        let inWindow2 = currentMinutesUTC >= 360 && currentMinutesUTC < 600
-        
-        let isPeakNow = !isWeekend && (inWindow1 || inWindow2)
-        self.isOffPeak = !isPeakNow
+        self.isOffPeak = newIsOffPeak
         self.currentStatusText = isOffPeak ? "Off-Peak Hours (50% Off)" : "Peak Hours (Standard)"
         
         // Calculate transition countdown
         self.nextTransitionText = calculateNextTransition(from: now, isPeak: isPeakNow, utcCalendar: utcCalendar)
         
         // Build local representation of peak windows for display
+        let weekday = utcCalendar.component(.weekday, from: now)
+        let isWeekend = (weekday == 1 || weekday == 7)
+        let hour = utcCalendar.component(.hour, from: now)
+        let minute = utcCalendar.component(.minute, from: now)
+        let currentMinutesUTC = hour * 60 + minute
+        let inWindow1 = currentMinutesUTC >= 60 && currentMinutesUTC < 240
+        let inWindow2 = currentMinutesUTC >= 360 && currentMinutesUTC < 600
+        
         self.formattedWindows = generateLocalWindows(for: now, inWindow1: !isWeekend && inWindow1, inWindow2: !isWeekend && inWindow2)
     }
+    
+    // MARK: - Notifications
+    
+    public func requestNotificationAuthorization(completion: ((Bool) -> Void)? = nil) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("[ScheduleManager] Notification authorization error: \(error.localizedDescription)")
+                }
+                completion?(granted)
+            }
+        }
+    }
+    
+    public func sendTransitionNotification(toOffPeak: Bool, at date: Date = Date()) {
+        notifyTransition(toOffPeak: toOffPeak, at: date)
+    }
+    
+    private func notifyTransition(toOffPeak: Bool, at date: Date) {
+        let status = toOffPeak ? "Off-Peak Hours (50% Off)" : "Peak Hours (Standard)"
+        
+        // 1. Post local NotificationCenter notification for in-app or unit test observers
+        NotificationCenter.default.post(
+            name: Self.transitionNotification,
+            object: self,
+            userInfo: [
+                Self.transitionKeyIsOffPeak: toOffPeak,
+                Self.transitionKeyStatusText: status,
+                Self.transitionKeyTimestamp: date
+            ]
+        )
+        
+        // 2. Deliver system user notification via UNUserNotificationCenter if enabled
+        guard notificationsEnabled else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = toOffPeak ? "DeepSeek: Off-Peak Hours" : "DeepSeek: Peak Hours"
+        content.subtitle = toOffPeak ? "50% Discount Active" : "Standard Rates Apply"
+        content.body = toOffPeak
+            ? "API requests now receive a 50% discount on cache hit, input miss, and output tokens."
+            : "Peak hours window is active. Standard API rates now apply."
+        content.sound = .default
+        
+        let request = UNNotificationRequest(
+            identifier: "deepseek.status.transition.\(toOffPeak ? "offpeak" : "peak")",
+            content: content,
+            trigger: nil // deliver immediately
+        )
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("[ScheduleManager] Failed to post UNNotification: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    // MARK: - Countdown and Window Helpers
     
     private func calculateNextTransition(from now: Date, isPeak: Bool, utcCalendar: Calendar) -> String {
         let weekday = utcCalendar.component(.weekday, from: now)
@@ -113,7 +231,6 @@ class ScheduleManager: ObservableObject {
             // Currently off-peak. When does the next peak start?
             if isWeekend {
                 // Next peak is Monday 01:00 UTC
-                // Find next Monday
                 var daysUntilMonday = (2 - weekday + 7) % 7
                 if daysUntilMonday == 0 { daysUntilMonday = 7 }
                 let minutesToMidnight = (24 * 60) - currentMinutesUTC

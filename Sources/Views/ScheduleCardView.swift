@@ -83,13 +83,36 @@ struct ScheduleCardView: View {
                 }
             }
             
-            HStack(spacing: 4) {
-                Image(systemName: "info.circle")
-                    .font(.system(size: 10))
-                Text("Applies Mon–Fri. Weekends & Chinese holidays are 100% off-peak.")
-                    .font(.system(size: 10))
+            HStack {
+                HStack(spacing: 4) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 10))
+                    Text("Applies Mon–Fri. Weekends 100% off-peak.")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(Color.secondary)
+                
+                Spacer()
+                
+                Button(action: {
+                    schedule.notificationsEnabled.toggle()
+                }) {
+                    HStack(spacing: 3) {
+                        Image(systemName: schedule.notificationsEnabled ? "bell.fill" : "bell.slash")
+                            .font(.system(size: 9))
+                        Text(schedule.notificationsEnabled ? "Alerts On" : "Alerts Off")
+                            .font(.system(size: 9.5, weight: .medium))
+                    }
+                    .foregroundColor(schedule.notificationsEnabled ? (colorScheme == .dark ? Color(red: 0.40, green: 0.75, blue: 1.0) : Color.blue) : Color.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2.5)
+                    .background(
+                        Capsule().fill(Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05))
+                    )
+                }
+                .buttonStyle(.plain)
+                .help("Toggle notifications on Peak/Off-Peak transitions.")
             }
-            .foregroundColor(Color.secondary)
             .padding(.top, 1)
         }
     }

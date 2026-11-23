@@ -16,6 +16,11 @@ let package = Package(
         .executableTarget(
             name: "DeepSeekStatus",
             path: "Sources"
+        ),
+        .testTarget(
+            name: "DeepSeekStatusTests",
+            dependencies: ["DeepSeekStatus"],
+            path: "Tests/DeepSeekStatusTests"
         )
     ]
 )

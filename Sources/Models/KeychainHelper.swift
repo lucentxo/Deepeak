@@ -1,13 +1,16 @@
 import Foundation
 
 /// Fast local preference storage for the DeepSeek API key.
-/// Uses standard UserDefaults with in-memory caching to avoid annoying macOS Keychain OS security dialogs.
-struct KeychainHelper {
+/// Uses standard UserDefaults with thread-safe in-memory caching to avoid annoying macOS Keychain OS security dialogs.
+public struct KeychainHelper: Sendable {
     private static let userDefaultsKey = "com.lucent.deepeak.stored_api_key"
-    private static var cachedKey: String? = nil
+    private static let lock = NSLock()
+    private nonisolated(unsafe) static var cachedKey: String? = nil
 
     @discardableResult
-    static func saveApiKey(_ apiKey: String) -> Bool {
+    public static func saveApiKey(_ apiKey: String) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
         cachedKey = apiKey
         if let data = apiKey.data(using: .utf8) {
             let base64 = data.base64EncodedString()
@@ -17,7 +20,9 @@ struct KeychainHelper {
         return false
     }
 
-    static func loadApiKey() -> String? {
+    public static func loadApiKey() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
         if let cached = cachedKey {
             return cached
         }
@@ -31,9 +36,18 @@ struct KeychainHelper {
     }
 
     @discardableResult
-    static func deleteApiKey() -> Bool {
+    public static func deleteApiKey() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
         cachedKey = nil
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         return true
+    }
+
+    /// Clears the in-memory cache without removing the key from UserDefaults.
+    public static func clearCache() {
+        lock.lock()
+        defer { lock.unlock() }
+        cachedKey = nil
     }
 }

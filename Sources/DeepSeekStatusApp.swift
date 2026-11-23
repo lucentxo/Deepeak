@@ -24,7 +24,8 @@ struct _EmptyScene: Scene {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover?
     private let scheduleManager = ScheduleManager()
@@ -78,7 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
     
     private func updateStatusItemIcon() {
-        guard let button = statusItem.button else { return }
+        guard let button = statusItem?.button else { return }
         
         let isOffPeak = scheduleManager.isOffPeak
         let iconImage = DeepSeekWhaleLogo.generateImage(isOffPeak: isOffPeak, size: 22)
@@ -89,11 +90,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
     
     @objc private func togglePopover() {
-        guard let button = statusItem.button else { return }
+        guard let button = statusItem?.button else { return }
         
-        if let pop = popover, pop.isShown {
-            pop.performClose(nil)
-            return
+        if let pop = popover {
+            if pop.isShown {
+                pop.performClose(nil)
+                pop.contentViewController = nil
+                self.popover = nil
+                return
+            } else {
+                pop.contentViewController = nil
+                self.popover = nil
+            }
         }
         
         // Update data right before presenting
@@ -123,7 +131,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
     
     func popoverDidClose(_ notification: Notification) {
-        // Release hosting controller and window memory when user dismisses the popover
+        // Detach contentViewController and release hosting controller & window memory when user dismisses the popover
+        popover?.contentViewController = nil
         popover = nil
+    }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        cancellables.removeAll()
+        if let pop = popover {
+            pop.contentViewController = nil
+            self.popover = nil
+        }
+        balanceManager.stopSyncTimer()
     }
 }

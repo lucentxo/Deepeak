@@ -4,14 +4,15 @@
 
 <p align="center">
   <b>A polished, ultra-lightweight macOS menu bar tool for DeepSeek.</b><br/>
-  Tracks live API peak & off-peak discount hours, converts schedules to your local system timezone, and provides real-time token pricing & account balance/budget.
+  Tracks live API peak & off-peak discount hours, converts schedules to your local system timezone, sends transition notifications, tracks live balances, and provides real-time token pricing.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-macOS%2013%2B-blue" alt="macOS 13+" />
   <img src="https://img.shields.io/badge/Swift-5.9%2B-F05138" alt="Swift 5.9+" />
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License" />
-  <img src="https://img.shields.io/badge/Bundle%20Size-584%20KB-success" alt="Bundle Size 584 KB" />
+  <img src="https://img.shields.io/badge/Tests-Passing-brightgreen" alt="Tests Passing" />
+  <img src="https://img.shields.io/badge/Bundle%20Size-~600%20KB-success" alt="Bundle Size ~600 KB" />
 </p>
 
 ---
@@ -24,82 +25,160 @@
   - Automatically turns **Graphite / Black** during **Peak** hours.
 
 - **⏰ System Timezone Sync & Countdown**:
-  - Tracks DeepSeek's Monday–Friday UTC windows (`01:00–04:00 UTC` and `06:00–10:00 UTC`).
-  - Automatically translates intervals into your Mac's current local system timezone.
-  - Dynamically updates on system timezone or clock adjustments.
-  - Real-time countdown displaying remaining time until the next peak/off-peak transition.
+  - DeepSeek API official schedule (Monday–Friday UTC):
+    - **Window 1**: `01:00 – 04:00 UTC`
+    - **Window 2**: `06:00 – 10:00 UTC`
+    - **Off-Peak (50% Discount)**: All other hours, plus **100% of weekends** (Saturday & Sunday UTC).
+  - Automatically translates UTC intervals into your Mac's current local system timezone.
+  - Dynamically updates upon system timezone or clock adjustments (`NSSystemTimeZoneDidChange`).
+  - Real-time countdown displaying remaining time until the next peak or off-peak transition.
+
+- **🔔 Peak / Off-Peak Transition Notifications**:
+  - Integrated with modern macOS **User Notifications** (`UNUserNotificationCenter`).
+  - Sends immediate system alerts when entering **Off-Peak hours (50% discount active)** or returning to **Peak hours**.
+  - Perfect for scheduling automated batch jobs, fine-tuning scripts, and high-throughput inference at minimum cost.
+
+- **🚀 DeepSeek-V4.1-Flash-1017 & V4 Pro Support**:
+  - Full support for **DeepSeek-V4.1-Flash-1017** (`deepseek-flash`, aliases `deepseek-v4.1-flash-1017`, `deepseek-v4-flash`), the high-speed flagship multimodal reasoning model (1017) with 1M token context.
+  - Full support for **DeepSeek V4 Pro** (`deepseek-pro`, alias `deepseek-v4-pro`), the premier professional reasoning and code generation model.
+
+- **💰 Real-Time Token Pricing Breakdown (USD / 1M Tokens)**:
+  - Full rates breakdown for **Cache Hit**, **Input Miss**, and **Output** tokens.
+  - Real-time 50% off-peak rate calculation with strikethrough comparison against standard peak pricing.
+  - Background auto-refresh every **12 hours** with an instant manual refresh trigger.
+
+  | Model | Parameter | Context | Peak Input (Miss / Hit) | Peak Output | Off-Peak (50% Off) Input | Off-Peak Output |
+  | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+  | **DeepSeek-V4.1-Flash-1017** | `deepseek-flash` | 1M | $0.30 / $0.006 | $1.20 | **$0.15 / $0.003** | **$0.60** |
+  | **DeepSeek V4 Pro** | `deepseek-pro` | 128K | $1.32 / $0.08 | $3.96 | **$0.66 / $0.04** | **$1.98** |
 
 - **💳 Live Account Balance & Budget**:
   - Connect your DeepSeek API key for real-time account balance tracking directly from DeepSeek's official `/user/balance` API.
-  - View total balance, topped-up credits, and promotional grants.
+  - Displays total balance, topped-up credits, and promotional grants in USD / CNY.
   - Smart status indicators: `Active`, `Low Balance`, or `Zero`.
-  - Keys are stored locally on your Mac with full privacy.
+  - Secure local credential storage via the macOS Keychain (`KeychainHelper`).
 
-- **⚡ Estimated Token Capacity**:
-  - Automatically calculates remaining token capacity based on your balance for **DeepSeek V4.1 Flash** and **DeepSeek V4 Pro**.
-  - Dynamically recalculates capacity in real time when 50% off-peak discounts kick in.
+- **⚡ Dynamic Token Capacity Estimation**:
+  - Automatically estimates remaining token generation capacity based on your current balance for both **DeepSeek-V4.1-Flash-1017** and **DeepSeek V4 Pro**.
+  - Recalculates token purchasing power in real time when 50% off-peak discounts kick in.
 
-- **💰 Token Pricing Breakdown (USD / 1M Tokens)**:
-  - Tracks active models: **DeepSeek V4.1 Flash** and **DeepSeek V4 Pro**.
-  - Shows **Cache Hit**, **Input Miss**, and **Output** rates with automatic 50% discount calculation and strikethrough peak rates.
-  - Background auto-refresh every **12 hours** with an instant manual refresh trigger.
-
-- **⚡ Featherweight & Resource Conscious**:
-  - Entire app bundle is only **~600 KB** on disk.
+- **🌿 Featherweight & Resource Conscious**:
+  - Entire standalone app bundle is only **~600 KB** on disk.
   - **Lazy Popover Allocation**: View hierarchy and window backing stores are torn down immediately on dismiss.
-  - Zero-lag, instant presentation.
-  - Pure menu bar utility with no dock icon.
+  - Zero idle CPU wakes; negligible memory footprint.
+  - Pure menu bar utility (`LSUIElement=true`) with no dock clutter.
 
 ---
 
-## 🚀 Installation
+## 🏗 Architecture & Concurrency
+
+Deepeak is designed with modern Swift best practices and Swift 6 concurrency readiness:
+
+```
+DeepSeekStatus/
+├── Package.swift               // Swift Package Manager definition (executable + testTarget)
+├── build.sh                    // Automated build, test, .app bundling & .dmg packaging script
+├── Resources/
+│   ├── AppIcon.icns            // High-resolution macOS application icon bundle
+│   ├── Info.plist              // LSUIElement=true configuration & app metadata
+│   ├── deepseek_logo.png       // DeepSeek whale brand mark
+│   └── logo_aligned.png        // README banner icon
+├── Sources/
+│   ├── DeepSeekStatusApp.swift // App entry point, NSStatusItem menu & popover lifecycle
+│   ├── Models/
+│   │   ├── ScheduleManager.swift // Peak/off-peak UTC calculation, UNUserNotificationCenter alerts & timers
+│   │   ├── PricingManager.swift  // DeepSeek model pricing tiers, 50% discount math & 12h cache
+│   │   ├── BalanceManager.swift  // Live API balance querying, Keychain integration & token math
+│   │   └── KeychainHelper.swift  // Thread-safe macOS Keychain wrapper for API keys
+│   ├── Views/
+│   │   ├── PopoverContentView.swift // Unified SwiftUI container
+│   │   ├── StatusHeaderView.swift   // Whale badge, peak status pill & discount indicator
+│   │   ├── BalanceCardView.swift    // Live balance, token capacity & key settings
+│   │   ├── ScheduleCardView.swift   // Local timezone peak schedule table & countdown
+│   │   └── PricingCardView.swift    // Tabular token pricing rates with off-peak discounts
+│   └── Assets/
+│       └── DeepSeekWhaleLogo.swift  // Official logo loader & dynamic tint generator
+└── Tests/
+    └── DeepSeekStatusTests/
+        └── DeepSeekStatusTests.swift // Comprehensive XCTest unit test suite
+```
+
+### Architectural Highlights
+- **MainActor Isolation**: UI-bound state and `@Published` properties across `ScheduleManager`, `PricingManager`, and `BalanceManager` are `@MainActor`-isolated to ensure thread safety.
+- **Weak Capture Semantics**: Timers and async tasks use `[weak self]` capture semantics to guarantee zero retain cycles or memory leaks.
+- **Modern Notification System**: Schedule alerts utilize `UNUserNotificationCenter` instead of deprecated `NSUserNotification` APIs.
+- **Clean Lifecycle**: Popovers are lazily initialized upon click and immediately deallocated upon dismissal to conserve system resources.
+
+---
+
+## 🧪 Testing
+
+The project includes an automated unit test suite verifying schedule math, pricing logic, and balance decoding:
+
+```bash
+# Run unit tests via Swift Package Manager
+swift test
+
+# Run tests with verbose output
+swift test --verbose
+
+# Run tests automatically as part of the build process
+./build.sh --test
+```
+
+### Test Coverage
+- **`ScheduleManagerTests`**:
+  - UTC peak windows (Window 1: `01:00–04:00 UTC`, Window 2: `06:00–10:00 UTC`).
+  - Weekend detection (100% off-peak on Saturday & Sunday UTC).
+  - Countdown math for peak completion and next peak onset.
+  - Timezone conversion to local system time.
+- **`PricingManagerTests`**:
+  - Baseline rate validation for `deepseek-v4.1-flash-1017` and `deepseek-v4-pro`.
+  - Exact 50% off-peak discount calculations for cache miss, cache hit, and output.
+- **`BalanceManagerTests`**:
+  - JSON decoding from DeepSeek's `/user/balance` response.
+  - Token capacity estimation algorithms for Flash and Pro models under peak and off-peak rates.
+
+---
+
+## 🚀 Installation & Building
 
 ### Option 1: Direct Download (Recommended)
-1. Download the latest **[Deepeak.dmg](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.dmg)** (or **[Deepeak.zip](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.zip)**) from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
+1. Download the latest **[Deepeak.dmg](https://github.com/lucentxo/Deepeak/releases/latest/download/Deepeak.dmg)** from [Releases](https://github.com/lucentxo/Deepeak/releases/latest).
 2. Open `Deepeak.dmg` and drag **Deepeak** into your **Applications** folder.
 3. Launch `Deepeak` — the whale logo will appear directly in your macOS menu bar!
 
 ---
 
 ### Option 2: Build from Source
-If you prefer to compile it yourself:
+
+Compile and package using the included `build.sh` script:
 
 ```bash
 git clone https://github.com/lucentxo/Deepeak.git
 cd Deepeak
-./build.sh --dmg
+
+# Build release .app bundle
+./build.sh
+
+# Run tests and create distributable DMG & ZIP
+./build.sh --clean --test --dmg
+
+# Launch the app
 open Deepeak.app
 ```
 
+### `build.sh` Command Line Options
 
----
-
-## 🛠 Project Structure
-
-```
-DeepSeekStatus/
-├── Package.swift               // Swift Package Manager configuration
-├── build.sh                    // Automated build, .app bundling & .dmg packaging script
-├── Resources/
-│   ├── AppIcon.icns            // macOS application icon bundle
-│   ├── Info.plist              // LSUIElement=true configuration
-│   └── deepseek_logo.png       // Official DeepSeek whale asset
-└── Sources/
-    ├── DeepSeekStatusApp.swift // App entry point, menu item & popover lifecycle
-    ├── Models/
-    │   ├── ScheduleManager.swift // UTC peak schedule, timezone converter & timer
-    │   ├── PricingManager.swift  // Token pricing rates, cache & 12h refresh timer
-    │   ├── BalanceManager.swift  // Live account balance, budget & token math
-    │   └── KeychainHelper.swift  // Safe local API key storage
-    ├── Views/
-    │   ├── PopoverContentView.swift // Unified container
-    │   ├── StatusHeaderView.swift   // Whale badge, status pill & discount indicator
-    │   ├── BalanceCardView.swift    // Live balance, token capacity & key settings
-    │   ├── ScheduleCardView.swift   // Local timezone peak schedule table
-    │   └── PricingCardView.swift    // Tabular token pricing rates
-    └── Assets/
-        └── DeepSeekWhaleLogo.swift  // Official logo loader & dynamic tint generator
-```
+| Flag | Description |
+| :--- | :--- |
+| `--clean` | Cleans previous build artifacts (`.build`, `Deepeak.app`, `Deepeak.dmg`, `Deepeak.zip`). |
+| `--test`, `-t` | Executes `swift test` before building. |
+| `--dmg` | Packages the compiled `.app` into a distributable `Deepeak.dmg` and compressed `.zip`. |
+| `--debug` | Compiles using the debug configuration (default is release). |
+| `--release` | Compiles using the release configuration. |
+| `--run` | Launches `Deepeak.app` immediately after a successful build. |
+| `--help`, `-h` | Displays usage and available options. |
 
 ---
 
