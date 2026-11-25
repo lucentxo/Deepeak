@@ -15,6 +15,41 @@
   <img src="https://img.shields.io/badge/Bundle%20Size-~600%20KB-success" alt="Bundle Size ~600 KB" />
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/hero-banner.png" alt="Deepeak Showcase — Dark & Light Mode" width="100%" />
+</p>
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/menubar-preview.png" alt="Dynamic Menu Bar Icon Preview" width="85%" />
+</p>
+
+<details>
+<summary><b>View All States (Dark Mode, Light Mode, Peak Hours, Setup)</b></summary>
+<br/>
+<table align="center">
+  <tr>
+    <td align="center"><b>Dark Mode (Off-Peak)</b></td>
+    <td align="center"><b>Light Mode (Off-Peak)</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/screenshot-dark.png" width="320" alt="Dark Mode Off-Peak" /></td>
+    <td><img src="docs/screenshots/screenshot-light.png" width="320" alt="Light Mode Off-Peak" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Peak Hours Active</b></td>
+    <td align="center"><b>First-Time API Key Setup</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/screenshot-peak.png" width="320" alt="Peak Hours" /></td>
+    <td><img src="docs/screenshots/screenshot-setup.png" width="320" alt="First-Time Setup" /></td>
+  </tr>
+</table>
+</details>
+
 ---
 
 ## ✨ Features

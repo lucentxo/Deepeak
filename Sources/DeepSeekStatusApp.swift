@@ -34,6 +34,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let idx = CommandLine.arguments.firstIndex(of: "--generate-screenshots") {
+            let outputDir: String
+            if idx + 1 < CommandLine.arguments.count {
+                outputDir = CommandLine.arguments[idx + 1]
+            } else {
+                outputDir = FileManager.default.currentDirectoryPath + "/docs/screenshots"
+            }
+            ScreenshotGenerator.generateAll(outputDir: outputDir)
+            NSApplication.shared.terminate(nil)
+            exit(0)
+        }
+
         // Close any windows macOS tries to open on launch (e.g. settings/blank windows)
         for window in NSApplication.shared.windows {
             window.close()
