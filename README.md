@@ -82,12 +82,6 @@
   - Real-time 50% off-peak rate calculation with strikethrough comparison against standard peak pricing.
   - Background auto-refresh every **12 hours** with an instant manual refresh trigger.
   
-
-  | Model | Parameter | Context | Peak Input (Miss / Hit) | Peak Output | Off-Peak (50% Off) Input | Off-Peak Output |
-  | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-  | **DeepSeek-V4.1-Flash-1017** | `deepseek-flash` | 1M | $0.30 / $0.006 | $1.20 | **$0.15 / $0.003** | **$0.60** |
-  | **DeepSeek V4 Pro** | `deepseek-pro` | 128K | $1.32 / $0.08 | $3.96 | **$0.66 / $0.04** | **$1.98** |
-
 - **💳 Live Account Balance & Budget**:
   - Connect your DeepSeek API key for real-time account balance tracking directly from DeepSeek's official `/user/balance` API.
   - Displays total balance, topped-up credits, and promotional grants in USD / CNY.
@@ -109,36 +103,6 @@
 - **Weak Capture Semantics**: Timers and async tasks use `[weak self]` capture semantics to guarantee zero retain cycles or memory leaks.
 - **Modern Notification System**: Schedule alerts utilize `UNUserNotificationCenter` instead of deprecated `NSUserNotification` APIs.
 - **Clean Lifecycle**: Popovers are lazily initialized upon click and immediately deallocated upon dismissal to conserve system resources.
-
----
-
-## 🧪 Testing
-
-The project includes an automated unit test suite verifying schedule math, pricing logic, and balance decoding:
-
-```bash
-# Run unit tests via Swift Package Manager
-swift test
-
-# Run tests with verbose output
-swift test --verbose
-
-# Run tests automatically as part of the build process
-./build.sh --test
-```
-
-### Test Coverage
-- **`ScheduleManagerTests`**:
-  - UTC peak windows (Window 1: `01:00–04:00 UTC`, Window 2: `06:00–10:00 UTC`).
-  - Weekend detection (100% off-peak on Saturday & Sunday UTC).
-  - Countdown math for peak completion and next peak onset.
-  - Timezone conversion to local system time.
-- **`PricingManagerTests`**:
-  - Baseline rate validation for `deepseek-v4.1-flash-1017` and `deepseek-v4-pro`.
-  - Exact 50% off-peak discount calculations for cache miss, cache hit, and output.
-- **`BalanceManagerTests`**:
-  - JSON decoding from DeepSeek's `/user/balance` response.
-  - Token capacity estimation algorithms for Flash and Pro models under peak and off-peak rates.
 
 ---
 
